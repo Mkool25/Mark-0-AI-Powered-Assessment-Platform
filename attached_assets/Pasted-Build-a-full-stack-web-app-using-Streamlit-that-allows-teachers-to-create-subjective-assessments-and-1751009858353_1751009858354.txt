@@ -1,0 +1,102 @@
+Build a full-stack web app using Streamlit that allows teachers to create subjective assessments and students to attempt and get AI-based grading. Use the following requirements to guide your code.
+
+🔹 Page 1: Home (Sidebar Navigation)
+Two options in sidebar or radio buttons:
+
+Create Assessment
+
+Attempt Assessment
+
+🔹 Create Assessment (Teacher View)
+UI to allow a teacher to:
+
+Add one or more questions
+
+Input: question text, marks, model answer (optional)
+
+Button: Generate Answer → calls a free open-source LLM API like Mistral 7B or LLaMA 2 (using Hugging Face or local Ollama)
+
+Fills the model answer text box automatically
+
+Allow editing generated answer
+
+Show running total marks from all added questions
+
+Save the assessment (use in-memory storage or JSON/SQLite file)
+
+🔹 Attempt Assessment (Student View)
+Show list of saved assessments (titles only)
+
+If no assessment exists, display: "NO ASSESSMENTS"
+
+When an assessment is selected:
+
+Display each question one by one
+
+For each question:
+
+Show question text
+
+A text box below to answer
+
+Disable copy-pasting using a JS workaround or show a warning ("Pasting is discouraged.")
+
+On Submit:
+
+For each question:
+
+Call an LLM (Mistral/LLaMA 2 via Hugging Face or Ollama) to grade the answer based on a rubric that includes:
+
+Answer relevance to teacher’s answer
+
+Coverage of key points
+
+Approximate length match
+
+Also use a plagiarism checker API (like Check Plagiarism on RapidAPI or Copyleaks) to calculate % match
+
+Combine scores:
+
+LLM Score (80% weight)
+
+Plagiarism Score (20% penalty if plagiarized)
+
+Show:
+
+Marks for each question
+
+Final total score with explanation (e.g., “Answer too short, minor plagiarism detected.”)
+
+🧠 LLM Guardrails to Add:
+If similarity is too low OR plagiarism is too high → flag with explanation
+
+AI-generated feedback should include score justification ("missed key concept", "too short", etc.)
+
+If LLM confidence or reasoning is unclear → prompt human review
+
+💾 Backend & Storage
+Use Python dictionaries or SQLite for saving assessments and answers
+
+File structure:
+
+app.py – main Streamlit file
+
+utils/llm_api.py – answer generation and grading logic using Hugging Face API
+
+utils/plag_checker.py – plagiarism check API integration
+
+assessments.json or db.sqlite – for storing questions and student answers
+
+📦 Dependencies (requirements.txt)
+nginx
+Copy
+Edit
+streamlit
+requests
+🏁 Run Instructions
+Run this on Replit or locally using:
+
+bash
+Copy
+Edit
+streamlit run app.py
