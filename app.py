@@ -99,6 +99,8 @@ def create_assessment_page():
             if generated_answer:
                 st.session_state.form_model_answer = generated_answer
                 st.success("Answer generated successfully!")
+                st.session_state['page'] = "Create Assessment"
+                st.session_state['assessment_title'] = assessment_title
                 st.rerun()
             else:
                 st.error("Failed to generate answer. Please try again or enter manually.")
@@ -109,6 +111,8 @@ def create_assessment_page():
         st.session_state.form_marks = 5
         st.session_state.form_model_answer = ""
         st.session_state.form_word_limit = 0
+        st.session_state['page'] = "Create Assessment"
+        st.session_state['assessment_title'] = assessment_title
         st.rerun()
     
     # Update session state with current values
@@ -141,6 +145,8 @@ def create_assessment_page():
                 st.session_state.form_marks = 5
                 st.session_state.form_model_answer = ""
                 st.session_state.form_word_limit = 0
+                st.session_state['page'] = "Create Assessment"
+                st.session_state['assessment_title'] = assessment_title
                 st.rerun()
             else:
                 st.error("Failed to save question. Please try again.")
@@ -165,6 +171,8 @@ def create_assessment_page():
                     current_assessment['total_marks'] -= question['marks']
                     save_assessments()
                     st.success(f"Question {i+1} removed successfully!")
+                    st.session_state['page'] = "Create Assessment"
+                    st.session_state['assessment_title'] = assessment_title
                     st.rerun()
     
     # Final assessment submission
@@ -187,6 +195,8 @@ def create_assessment_page():
                 current_assessment['questions'] = []
                 current_assessment['total_marks'] = 0
                 save_assessments()
+                st.session_state['page'] = "Create Assessment"
+                st.session_state['assessment_title'] = assessment_title
                 st.rerun()
 
 def attempt_assessment_page():
@@ -296,12 +306,8 @@ def attempt_assessment_page():
                 # Calculate final score
                 llm_score = llm_result.get('score', 0)
                 llm_feedback = llm_result.get('feedback', 'No feedback available')
-                
-                plag_percentage = plag_result.get('plagiarism_percentage', 0)
-                plag_penalty = min(plag_percentage * 0.2, llm_score * 0.2)  # 20% penalty weight
-                
-                final_score = max(0, llm_score - plag_penalty)
-                
+                # Remove plagiarism penalty: final_score = llm_score
+                final_score = llm_score
                 question_results.append({
                     'question_num': i + 1,
                     'question_text': question['text'],
@@ -309,11 +315,10 @@ def attempt_assessment_page():
                     'max_marks': question['marks'],
                     'llm_score': llm_score,
                     'llm_feedback': llm_feedback,
-                    'plagiarism_percentage': plag_percentage,
-                    'plagiarism_penalty': plag_penalty,
+                    'plagiarism_percentage': plag_result.get('plagiarism_percentage', 0),
+                    'plagiarism_penalty': 0,
                     'final_score': final_score
                 })
-                
                 total_score += final_score
         
         progress_bar.progress(1.0)

@@ -1052,15 +1052,21 @@ This answer should demonstrate understanding of [identify the main subject area]
 
 [Provide a comprehensive response that directly addresses this specific question, including relevant facts, examples, and explanations. Structure your answer with clear introduction, main points, and conclusion.]"""
 
-def grade_answer(question: str, model_answer: str, student_answer: str, max_marks: int) -> Dict:
+def grade_answer(question: str, model_answer: str, student_answer: str, max_marks: int) -> dict:
     """Grade student answer using LLM (no rubric)"""
     try:
         llm_result = call_llm_for_grading(question, model_answer, student_answer, max_marks)
         if llm_result:
+            # If already parsed (dict with 'score'), return as is
+            if isinstance(llm_result, dict) and 'score' in llm_result and 'feedback' in llm_result:
+                return llm_result
+            # Otherwise, parse the raw response
             return parse_grading_response(llm_result.get('raw_response', llm_result.get('feedback', '')), max_marks)
         return basic_grade_answer(question, model_answer, student_answer, max_marks)
     except Exception as e:
-        print(f"Error grading answer: {str(e)}")
+        print(f"[ERROR] grade_answer failed: {e}")
+        import traceback
+        traceback.print_exc()
         return basic_grade_answer(question, model_answer, student_answer, max_marks)
 
 def call_llm_for_grading(question: str, model_answer: str, student_answer: str, max_marks: int) -> Optional[Dict]:
